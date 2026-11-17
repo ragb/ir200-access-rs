@@ -1,0 +1,16 @@
+[package]
+name = "ir200"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "CLI for the BOSS IR-200 (dump/sync/diff/show/lint/schema/catalog/resolve)."
+
+[[bin]]
+name = "ir200"
+path = "src/main.rs"
+
+[dependencies]
+# The CLI is the generic engine; `ir200` only wires its Device impl into `run`.
+ir200-core = { workspace = true, features = ["schema"] }
+midi-access-cli = { workspace = true }

@@ -1,0 +1,30 @@
+/target
+**/*.rs.bk
+
+# WASM build outputs
+/ir200-wasm/pkg
+/ir200-wasm/target
+
+# Roland code extracted from IR Loader: local reference only, never commit.
+reference/ir-loader-js/
+reference/ir-loader-ui/
+
+# BOSS manuals / sound list and text extracted from them: copyrighted, not
+# redistributed. (docs/sysex-notes.md, my own log, is kept.)
+docs/spec/
+
+# Dumps and logs produced while exploring
+tools/dumps/
+tools/explore/*.log
+tools/explore/.venv/
+*_log.txt
+
+# IDE / tools
+.vscode/
+.idea/
+.claude/
+__pycache__/
+
+# OS
+.DS_Store
+Thumbs.db
