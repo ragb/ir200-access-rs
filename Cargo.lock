@@ -368,6 +368,7 @@ version = "0.1.0"
 dependencies = [
  "getrandom",
  "ir200-core",
+ "midi-access-core",
  "serde",
  "serde-wasm-bindgen",
  "tsify-next",

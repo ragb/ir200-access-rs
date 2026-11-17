@@ -1,0 +1,684 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Memory",
+  "description": "One memory: what the pedal plays.",
+  "type": "object",
+  "required": [
+    "ambience",
+    "amp",
+    "cabinet",
+    "cabinet_a",
+    "cabinet_b",
+    "ctl1",
+    "ctl2",
+    "eq_a",
+    "eq_b",
+    "eq_link",
+    "exp",
+    "fsw_down",
+    "fsw_up",
+    "input_setting",
+    "name",
+    "noise_suppressor",
+    "send_return"
+  ],
+  "properties": {
+    "ambience": {
+      "$ref": "#/definitions/Ambience"
+    },
+    "amp": {
+      "$ref": "#/definitions/Amp"
+    },
+    "cabinet": {
+      "$ref": "#/definitions/CabinetCommon"
+    },
+    "cabinet_a": {
+      "$ref": "#/definitions/Cabinet"
+    },
+    "cabinet_b": {
+      "$ref": "#/definitions/Cabinet"
+    },
+    "ctl1": {
+      "$ref": "#/definitions/Switch"
+    },
+    "ctl2": {
+      "$ref": "#/definitions/Switch"
+    },
+    "eq_a": {
+      "$ref": "#/definitions/Eq"
+    },
+    "eq_b": {
+      "$ref": "#/definitions/Eq"
+    },
+    "eq_link": {
+      "description": "EQ A/B LINK: edit both EQs together.",
+      "type": "boolean"
+    },
+    "exp": {
+      "$ref": "#/definitions/Expression"
+    },
+    "fsw_down": {
+      "$ref": "#/definitions/Switch"
+    },
+    "fsw_up": {
+      "$ref": "#/definitions/Switch"
+    },
+    "input_setting": {
+      "description": "INPUT SETTING number, 1–10 (used when SYSTEM > INPUT > PREF is MEMORY).",
+      "type": "integer",
+      "format": "uint8",
+      "minimum": 0.0
+    },
+    "name": {
+      "description": "Up to 16 printable ASCII characters.",
+      "type": "string"
+    },
+    "noise_suppressor": {
+      "$ref": "#/definitions/NoiseSuppressor"
+    },
+    "send_return": {
+      "$ref": "#/definitions/SendReturn"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Ambience": {
+      "description": "AMBIENCE.",
+      "type": "object",
+      "required": [
+        "ambience_type",
+        "level",
+        "mode",
+        "time",
+        "tone"
+      ],
+      "properties": {
+        "ambience_type": {
+          "$ref": "#/definitions/AmbienceType"
+        },
+        "level": {
+          "description": "Effect level, 0–100.",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "mode": {
+          "$ref": "#/definitions/AmbienceMode"
+        },
+        "time": {
+          "description": "Reverb time in tenths of a second, 1–100 (0.1–10.0 s).",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "tone": {
+          "description": "Tone, -50–+50.",
+          "type": "integer",
+          "format": "int8"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AmbienceMode": {
+      "description": "AMBIENCE MODE.",
+      "type": "string",
+      "enum": [
+        "stereo",
+        "dual_mono"
+      ]
+    },
+    "AmbienceType": {
+      "description": "AMBIENCE TYPE.",
+      "type": "string",
+      "enum": [
+        "thru",
+        "room",
+        "studio",
+        "hall"
+      ]
+    },
+    "Amp": {
+      "description": "AMP.",
+      "type": "object",
+      "required": [
+        "amp_type",
+        "bass",
+        "gain",
+        "gain_switch",
+        "level",
+        "middle",
+        "solo",
+        "solo_level",
+        "treble"
+      ],
+      "properties": {
+        "amp_type": {
+          "description": "Amp type (0–11, see the `amp_type` catalog).",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "bass": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "gain": {
+          "description": "Gain, 0–120.",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "gain_switch": {
+          "$ref": "#/definitions/GainSwitch"
+        },
+        "level": {
+          "description": "Level, 0–100.",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "middle": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "solo": {
+          "description": "SOLO SW.",
+          "type": "boolean"
+        },
+        "solo_level": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "treble": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Cabinet": {
+      "description": "CABINET A or B.",
+      "type": "object",
+      "required": [
+        "cab_type",
+        "direct_mix",
+        "mic_level"
+      ],
+      "properties": {
+        "cab_type": {
+          "description": "Cab type, 0–336: presets, then USER IR 1–128 from 209 (see the `cab_type` catalog).",
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "direct_mix": {
+          "description": "Direct sound (speaker off), 0–100.",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "mic_level": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "CabinetCommon": {
+      "description": "CABINET settings shared by A and B.",
+      "type": "object",
+      "required": [
+        "ab_link",
+        "adjust",
+        "out_mode"
+      ],
+      "properties": {
+        "ab_link": {
+          "description": "A/B LINK: edit both cabinets together.",
+          "type": "boolean"
+        },
+        "adjust": {
+          "description": "Time lag of cabinet B against A, 0–100.",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "out_mode": {
+          "$ref": "#/definitions/CabinetOutMode"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CabinetOutMode": {
+      "description": "CABINET OUT MODE.",
+      "oneOf": [
+        {
+          "description": "Cabinet A and B mixed together.",
+          "type": "string",
+          "enum": [
+            "mono_mix"
+          ]
+        },
+        {
+          "description": "Cabinet A and B output in stereo.",
+          "type": "string",
+          "enum": [
+            "stereo"
+          ]
+        }
+      ]
+    },
+    "Eq": {
+      "description": "EQ A or B (memory and global EQ share the layout).",
+      "type": "object",
+      "required": [
+        "eq_type",
+        "geq_125hz",
+        "geq_16khz",
+        "geq_1khz",
+        "geq_250hz",
+        "geq_2khz",
+        "geq_31hz",
+        "geq_4khz",
+        "geq_500hz",
+        "geq_63hz",
+        "geq_8khz",
+        "geq_level",
+        "high_gain",
+        "high_mid_freq",
+        "high_mid_gain",
+        "high_mid_q",
+        "level",
+        "low_gain",
+        "low_mid_freq",
+        "low_mid_gain",
+        "low_mid_q",
+        "on"
+      ],
+      "properties": {
+        "eq_type": {
+          "$ref": "#/definitions/EqType"
+        },
+        "geq_125hz": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "geq_16khz": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "geq_1khz": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "geq_250hz": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "geq_2khz": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "geq_31hz": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "geq_4khz": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "geq_500hz": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "geq_63hz": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "geq_8khz": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "geq_level": {
+          "description": "Graphic level, dB.",
+          "type": "integer",
+          "format": "int8"
+        },
+        "high_gain": {
+          "description": "Parametric high gain, dB.",
+          "type": "integer",
+          "format": "int8"
+        },
+        "high_mid_freq": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "high_mid_gain": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "high_mid_q": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "level": {
+          "description": "Parametric level, dB.",
+          "type": "integer",
+          "format": "int8"
+        },
+        "low_gain": {
+          "description": "Parametric low gain, dB.",
+          "type": "integer",
+          "format": "int8"
+        },
+        "low_mid_freq": {
+          "description": "0–29, see the `eq_freq` catalog.",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "low_mid_gain": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "low_mid_q": {
+          "description": "0–5, see the `eq_q` catalog.",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "on": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "EqType": {
+      "description": "EQ TYPE.",
+      "oneOf": [
+        {
+          "description": "Four-band parametric.",
+          "type": "string",
+          "enum": [
+            "parametric"
+          ]
+        },
+        {
+          "description": "Ten-band graphic.",
+          "type": "string",
+          "enum": [
+            "graphic"
+          ]
+        }
+      ]
+    },
+    "ExpFunction": {
+      "description": "EXP PDL FUNCTION.",
+      "type": "string",
+      "enum": [
+        "off",
+        "amp_gain",
+        "amp_level",
+        "amp_solo_level",
+        "send_level",
+        "return_level"
+      ]
+    },
+    "Expression": {
+      "description": "EXP PDL FUNCTION.",
+      "type": "object",
+      "required": [
+        "amp_gain_max",
+        "amp_gain_min",
+        "amp_level_max",
+        "amp_level_min",
+        "amp_solo_level_max",
+        "amp_solo_level_min",
+        "function",
+        "return_level_max",
+        "return_level_min",
+        "send_level_max",
+        "send_level_min"
+      ],
+      "properties": {
+        "amp_gain_max": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "amp_gain_min": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "amp_level_max": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "amp_level_min": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "amp_solo_level_max": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "amp_solo_level_min": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "function": {
+          "$ref": "#/definitions/ExpFunction"
+        },
+        "return_level_max": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "return_level_min": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "send_level_max": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "send_level_min": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "GainSwitch": {
+      "description": "Amp GAIN SW.",
+      "type": "string",
+      "enum": [
+        "low",
+        "middle",
+        "high"
+      ]
+    },
+    "NoiseSuppressor": {
+      "description": "NOISE SUPPRESSOR.",
+      "type": "object",
+      "required": [
+        "release",
+        "threshold"
+      ],
+      "properties": {
+        "release": {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "threshold": {
+          "description": "Threshold, 0 = OFF, 1–100.",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "SendReturn": {
+      "description": "SEND/RETURN.",
+      "type": "object",
+      "required": [
+        "adjust",
+        "mode",
+        "on",
+        "position",
+        "return_level",
+        "send_level"
+      ],
+      "properties": {
+        "adjust": {
+          "description": "Time lag between the internal sound and the external effect, 0–100.",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "mode": {
+          "$ref": "#/definitions/SendReturnMode"
+        },
+        "on": {
+          "type": "boolean"
+        },
+        "position": {
+          "$ref": "#/definitions/SendReturnPosition"
+        },
+        "return_level": {
+          "description": "0–200.",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "send_level": {
+          "description": "0–200.",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "SendReturnMode": {
+      "description": "SEND/RETURN MODE.",
+      "oneOf": [
+        {
+          "description": "NORMAL MONO RET: in series, mono return.",
+          "type": "string",
+          "enum": [
+            "normal_mono_return"
+          ]
+        },
+        {
+          "description": "NORMAL STEREO RET: in series, stereo return.",
+          "type": "string",
+          "enum": [
+            "normal_stereo_return"
+          ]
+        },
+        {
+          "description": "DIR MIX MONO RET: return mixed with the direct sound, mono return.",
+          "type": "string",
+          "enum": [
+            "direct_mix_mono_return"
+          ]
+        },
+        {
+          "description": "DIR MIX STEREO RET: return mixed with the direct sound, stereo return.",
+          "type": "string",
+          "enum": [
+            "direct_mix_stereo_return"
+          ]
+        }
+      ]
+    },
+    "SendReturnPosition": {
+      "description": "SEND/RETURN POSITION.",
+      "oneOf": [
+        {
+          "description": "Before CABINET A and B.",
+          "type": "string",
+          "enum": [
+            "pre_cabinet"
+          ]
+        },
+        {
+          "description": "After EQ A and B.",
+          "type": "string",
+          "enum": [
+            "post_eq"
+          ]
+        }
+      ]
+    },
+    "Switch": {
+      "description": "A footswitch or CTL jack: DOWN/UP FUNCTION, CTL1/CTL2 FUNCTION.",
+      "type": "object",
+      "required": [
+        "amp_solo",
+        "eq",
+        "function",
+        "memory",
+        "send_return"
+      ],
+      "properties": {
+        "amp_solo": {
+          "description": "AMP SOLO function parameter, 0–1.",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "eq": {
+          "description": "EQ function target: 0 = A, 1 = B, 2 = A+B (`switch_eq` catalog).",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "function": {
+          "$ref": "#/definitions/SwitchFunction"
+        },
+        "memory": {
+          "description": "MEMORY function target: 0 = DEC, 1 = INC, 2–129 = memory 1–128 (`switch_memory` catalog).",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        },
+        "send_return": {
+          "description": "SEND/RET function parameter (always 0).",
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "SwitchFunction": {
+      "description": "Footswitch / CTL FUNCTION.",
+      "type": "string",
+      "enum": [
+        "memory",
+        "amp_solo",
+        "eq",
+        "send_return"
+      ]
+    }
+  }
+}

@@ -1,9 +1,9 @@
 //! MIDI PC MAP (`50 00 00 00`): which memory each Program Change selects.
 //!
-//! 128 entries, two nibbles each (256 bytes). IR Loader's map allows 0–128 per
-//! entry; the manual shows memory 1–128. Whether 0 means memory 1 is
-//! *unverified* (see `docs/sysex-notes.md`), so the document keeps the stored
-//! number.
+//! 128 entries, two nibbles each (256 bytes). Each entry stores the memory
+//! number 1–128 directly (hardware: a stock map reads PC#n = n). IR Loader's
+//! range also allows 0, which a real map contained for one entry; its meaning
+//! is unknown.
 
 use serde::{Deserialize, Serialize};
 
@@ -21,7 +21,7 @@ pub const PC_COUNT: usize = 128;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProgramChangeMap {
-    /// 128 stored values, PC#1 first.
+    /// Memory number (1–128) for PC#1 … PC#128.
     pub memory: Vec<u8>,
 }
 
@@ -54,10 +54,10 @@ impl ProgramChangeMap {
         Ok(out)
     }
 
-    /// Identity map: PC#n stores n − 1.
+    /// Identity map: PC#n selects memory n.
     pub fn init() -> Self {
         Self {
-            memory: (0..PC_COUNT as u8).collect(),
+            memory: (1..=PC_COUNT as u8).collect(),
         }
     }
 }
@@ -71,7 +71,7 @@ mod tests {
         let m = ProgramChangeMap::init();
         let b = m.to_bytes().unwrap();
         assert_eq!(b.len(), 256);
-        assert_eq!(&b[254..], &[0x07, 0x0F]);
+        assert_eq!(&b[254..], &[0x08, 0x00]);
         assert_eq!(ProgramChangeMap::from_bytes(&b).unwrap(), m);
         assert_eq!(map::midi_pcmap::PC128.off, 254);
     }

@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+  # Opt into Node 24 for JS actions ahead of the June 2026 forced switch.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  native:
+    name: Native (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux MIDI deps
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+      - name: Test
+        run: cargo test --workspace --locked
+
+      - name: Verify schemas/ are up to date
+        # If this fails locally, run `tools/regen-schemas.sh` and commit.
+        run: |
+          for area in setup system edit pc-map; do
+            cargo run --release --bin ir200 --locked -- schema "$area" > "/tmp/$area.schema.json"
+            diff -u "schemas/ir200-$area.schema.json" "/tmp/$area.schema.json"
+          done
+
+  wasm:
+    name: WASM bindings
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+        with:
+          # Pinned, not `latest`: the action falls back to v0.9.1 when the
+          # GitHub API lookup is rate-limited, and v0.9.1 cannot read
+          # workspace-inherited manifests.
+          version: "v0.15.0"
+
+      - name: wasm-pack test (Node)
+        working-directory: ir200-wasm
+        run: wasm-pack test --node
+
+      - name: wasm-pack build (web)
+        working-directory: ir200-wasm
+        run: wasm-pack build --target web --release
+
+      - name: Upload pkg/ artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ir200-wasm-pkg
+          path: ir200-wasm/pkg/
+          if-no-files-found: error

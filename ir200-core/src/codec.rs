@@ -209,6 +209,29 @@ impl<T: Display> Field for T {
     }
 }
 
+/// Spoken form of a display value for a field's type: `on`/`off` for
+/// switches, the variant name in words for enums (`normal mono return`), the
+/// number otherwise. Catalog names are applied on top by [`crate::live`].
+pub trait Show {
+    fn show(v: i64) -> String;
+}
+
+impl<T: Display + serde::Serialize> Show for T {
+    fn show(v: i64) -> String {
+        match T::from_display(v).map(|x| serde_yaml::to_value(&x)) {
+            Some(Ok(serde_yaml::Value::Bool(b))) => if b { "on" } else { "off" }.to_string(),
+            Some(Ok(serde_yaml::Value::String(s))) => s.replace('_', " "),
+            _ => v.to_string(),
+        }
+    }
+}
+
+impl Show for String {
+    fn show(_v: i64) -> String {
+        String::new()
+    }
+}
+
 macro_rules! int_display {
     ($($t:ty),*) => {$(
         impl Display for $t {
@@ -232,16 +255,16 @@ impl Display for bool {
     }
 }
 
-/// Text: printable ASCII, space padded on the wire, trailing spaces trimmed in
+/// Text: 7-bit ASCII (the pedal stores control bytes too), space padded on the wire, trailing spaces trimmed in
 /// the document.
 impl Field for String {
     fn read(block: &[u8], p: &P, field: &'static str) -> Result<Self, CodecError> {
         let n = p.enc.width();
         let b = &block[p.off..p.off + n];
-        if b.iter().any(|&c| !(0x20..0x7F).contains(&c)) {
+        if b.iter().any(|&c| c >= 0x80) {
             return Err(CodecError::BadString {
                 field,
-                reason: "non-printable byte",
+                reason: "byte above 0x7F",
             });
         }
         Ok(String::from_utf8_lossy(b).trim_end().to_string())
@@ -254,10 +277,10 @@ impl Field for String {
                 reason: "too long",
             });
         }
-        if self.bytes().any(|c| !(0x20..0x7F).contains(&c)) {
+        if self.bytes().any(|c| c >= 0x80) {
             return Err(CodecError::BadString {
                 field,
-                reason: "only printable ASCII is allowed",
+                reason: "only ASCII is allowed",
             });
         }
         let mut b = self.as_bytes().to_vec();
@@ -342,6 +365,15 @@ macro_rules! block {
             pub fn params() -> &'static [&'static $crate::codec::P] {
                 &[$(&$p),*]
             }
+
+            /// `(field, spoken value)` for the parameter at `p.off` of any
+            /// block this struct describes.
+            pub fn describe_param(p: &$crate::codec::P, v: i64) -> Option<(&'static str, String)> {
+                $( if p.off == $p.off {
+                    return Some((stringify!($f), <$t as $crate::codec::Show>::show(v)));
+                } )*
+                None
+            }
         }
     };
 }
@@ -387,6 +419,27 @@ macro_rules! area {
             pub fn init() -> Self {
                 Self { $( $f: $crate::area!(@init $kind $p, $t), )* }
             }
+
+            /// `(serde path within the area, spoken value)` for parameter `p`
+            /// (given at its map address) with display value `v`.
+            pub fn describe_param(p: &$crate::codec::P, v: i64) -> Option<(String, String)> {
+                $( if let Some(r) = $crate::area!(@desc $kind $p, $t, p, v, $f) { return Some(r); } )*
+                None
+            }
+        }
+    };
+    (@desc block $p:path, $t:ty, $q:ident, $v:ident, $f:ident) => {
+        if $q.block.addr == $p.addr {
+            <$t>::describe_param($q, $v).map(|(n, s)| (format!("{}.{}", stringify!($f), n), s))
+        } else {
+            None
+        }
+    };
+    (@desc param $p:path, $t:ty, $q:ident, $v:ident, $f:ident) => {
+        if $q.id == $p.id {
+            Some((stringify!($f).to_string(), <$t as $crate::codec::Show>::show($v)))
+        } else {
+            None
         }
     };
     (@block block $p:path) => { &$p };

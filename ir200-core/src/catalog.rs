@@ -7,10 +7,10 @@
 //! written by name (`cab_type: 412 BRIT STK DYN57-S`) and the editor can show
 //! the names.
 //!
-//! **Unverified order**: the amp and cab type lists follow the sound list's
-//! order, but IR Loader's map has 12 amp types (the sound list names 11) and
-//! 209 preset cab slots (the sound list names 155). Check them against the
-//! factory memories on hardware before relying on them; see
+//! The amp and cab type numbering was calibrated on hardware (2026-11-17)
+//! against the factory memories 1-32: amp type 1 is NATURAL, cab type 1 is
+//! the first BOSS IR, and BOSS cabinets are not in sound-list order. Index 0
+//! of both lists and cab types 156-208 have no known name. See
 //! `docs/sysex-notes.md`.
 
 use midi_access_core::meta::{Kind, Level, ParamMeta};
@@ -27,8 +27,10 @@ pub static IR200_CATALOGS: Ir200Catalogs = Ir200Catalogs;
 /// is `CABINFO%COM%209`).
 pub const USER_IR_FIRST_CAB_TYPE: u16 = 209;
 
-/// Amp types, in sound-list order: 8 guitar amps, then 3 bass amps.
+/// Amp types by stored value. 0 has no known name; 1-8 are the guitar amps,
+/// 9-11 the bass amps (hardware-verified against factory memories).
 pub const AMP_TYPES: [&str; 12] = [
+    "---",
     "NATURAL",
     "JC-120",
     "TWIN COMBO",
@@ -40,19 +42,20 @@ pub const AMP_TYPES: [&str; 12] = [
     "NATURAL BASS",
     "X-DRIVE BASS",
     "CONCERT BASS",
-    "AMP 12",
 ];
 
-/// BOSS cabinets, in sound-list order (8 guitar, 4 bass).
+/// BOSS cabinets in stored order (cab type `1 + 12 * cabinet + mic`).
+/// Hardware-verified from the factory memories except 412 BRIT STK, B118 BAS
+/// REF and B410 TWEETER, which fill the remaining slots.
 const BOSS_CABINETS: [&str; 12] = [
     "112 NATURAL",
-    "212 JC-120",
     "212 TWIN",
     "212 DIAMOND",
+    "212 JC-120",
     "410 TWEED",
+    "412 BGR UB",
     "412 CLASS ST",
     "412 BRIT STK",
-    "412 BGR UB",
     "B118 BAS REF",
     "B215 WIDE",
     "B410 TWEETER",
@@ -94,10 +97,13 @@ const CELESTION: [&str; 11] = [
 pub fn cab_type_name(i: u16) -> Option<String> {
     let boss = BOSS_CABINETS.len() * MICS.len();
     let i = i as usize;
-    Some(if i < boss {
+    Some(if i == 0 {
+        "---".to_string()
+    } else if i <= boss {
+        let i = i - 1;
         format!("{} {}", BOSS_CABINETS[i / MICS.len()], MICS[i % MICS.len()])
-    } else if i < boss + CELESTION.len() {
-        CELESTION[i - boss].to_string()
+    } else if i <= boss + CELESTION.len() {
+        CELESTION[i - boss - 1].to_string()
     } else if i < USER_IR_FIRST_CAB_TYPE as usize {
         format!("CAB {}", i + 1)
     } else if i < crate::address::CAB_TYPE_COUNT {
@@ -448,7 +454,7 @@ static PARAMS: &[ParamMeta] = &[
     p("system.control_preferences.exp", "Expression pedal settings", "Controls", "Memory: each memory sets the expression pedal. System: one setting for all."),
     // ===== Setup / PC map =====
     p("setup.memory_index", "Current memory", "Setup", "The selected memory, stored 0 to 127 for memories 1 to 128."),
-    p("pc_map.memory", "Program change map", "MIDI", "The memory each program change number selects."),
+    p("pc_map.memory", "Program change map", "MIDI", "The memory, 1 to 128, each program change number selects."),
 ];
 
 /// The parameter table.
@@ -480,9 +486,17 @@ mod tests {
 
     #[test]
     fn cab_types() {
-        assert_eq!(cab_type_name(0).unwrap(), "112 NATURAL DYN57-S");
-        assert_eq!(cab_type_name(143).unwrap(), "B810 A 81 CND87-L");
-        assert_eq!(cab_type_name(144).unwrap(), "112 CEL-CREM R121 DARK");
+        // Factory memories: NATURAL 1 = 9, JC-120 1 = 43, TWIN COMBO 1 = 23,
+        // BGR UB METAL 1 = 154/155, NATURAL BASS = 119.
+        assert_eq!(cab_type_name(9).unwrap(), "112 NATURAL D57+R121-S");
+        assert_eq!(cab_type_name(43).unwrap(), "212 JC-120 RBN121-S");
+        assert_eq!(cab_type_name(23).unwrap(), "212 TWIN CND87-S");
+        assert_eq!(cab_type_name(154).unwrap(), "412 CEL-V30 MULTI+ROOM L");
+        assert_eq!(cab_type_name(155).unwrap(), "412 CEL-V30 MULTI+ROOM R");
+        assert_eq!(cab_type_name(119).unwrap(), "B215 WIDE CND87-S");
+        assert_eq!(cab_type_name(144).unwrap(), "B810 A 81 CND87-L");
+        assert_eq!(cab_type_name(145).unwrap(), "112 CEL-CREM R121 DARK");
+        assert_eq!(cab_type_name(156).unwrap(), "CAB 157");
         assert_eq!(cab_type_name(209).unwrap(), "USER IR 1");
         assert_eq!(cab_type_name(336).unwrap(), "USER IR 128");
         assert!(cab_type_name(337).is_none());
@@ -492,7 +506,7 @@ mod tests {
     #[test]
     fn resolve_and_label() {
         let c = &IR200_CATALOGS;
-        assert_eq!(c.resolve("cab_type", "412 brit stk dyn57-s"), Some(72));
+        assert_eq!(c.resolve("cab_type", "412 brit stk dyn57-s"), Some(85));
         assert_eq!(c.label("cc_number", 32).as_deref(), Some("CC#64"));
         assert_eq!(c.label("tx_channel", 17).as_deref(), Some("RX"));
         assert_eq!(c.label("ambience_time", 26).as_deref(), Some("2.6 s"));
