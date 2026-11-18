@@ -14,6 +14,7 @@ pub mod catalog;
 pub mod codec;
 pub mod device;
 pub mod inbound;
+pub mod irconv;
 pub mod live;
 pub mod map;
 pub mod memory;

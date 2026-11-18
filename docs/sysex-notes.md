@@ -102,13 +102,23 @@ Factory memories match the BOSS sound list, which calibrates the numbering:
   +0, file-name length (`INTEGER4x4`, 0 = empty slot) at +`00 20`, file name
   (UTF-8, two nibbles per byte) at +`00 24`, coefficients at +`02 24`.
 - Names may contain control bytes (one slot's name has a line feed).
+- **Renaming** (verified): one DT1 of the 32 space-padded name bytes at the
+  slot base. The pedal takes it immediately and reads back the new name; no
+  command or IR-data init is needed. Tested on slot 1 and restored
+  (`ir200probe.py irname`).
+- **Loading** (verified): name DT1, file-name nibble DT1s, then 112
+  coefficient DT1s (30 values each), 8 ms apart, as in
+  `docs/ir-conversion.md`. The pedal sets the file-name length itself (43 for
+  a 43-byte name), which marks the slot used. Our converter's output for the
+  96 kHz TF 65 Twin WAV, written to empty slot 128 by `irload.py`, read back
+  bit-identical. Slot 2 was already in use (length 52); `irload.py` refused it.
 - **Coefficients are not the WAV samples.** Each slot holds 3354 values
   (8 nibbles each); as IEEE-754 float32 the first ~3270 are a filtered impulse
   (peak ~0.13), followed by ~80 values that look like a tail model: rising
   frequency points 4048 … 47995, gains, near-zero values, and `3.0, 1.0` at
   the end. IR Loader computes this in native code (`$native.app.control`), not
-  in its JavaScript. Writing new IRs needs that converter reproduced; comparing
-  original WAVs with stored slots is the way in. Not done yet.
+  in its JavaScript. Reproduced in `tools/explore/irconv.py`; see
+  `docs/ir-conversion.md`.
 
 ### Not yet tested
 

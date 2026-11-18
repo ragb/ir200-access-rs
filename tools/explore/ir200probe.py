@@ -8,8 +8,9 @@ raw dumps to ir200-core/tests/fixtures/.
     .venv\\Scripts\\python.exe ir200probe.py listen 120      # log what the pedal pushes, questions 3-5
     .venv\\Scripts\\python.exe ir200probe.py rq1 20001000 9  # one read
 
-Safety: the only write is editor communication mode (7F 00 00 01), and it is
-always switched off again on exit. Nothing else is ever written.
+Safety: editor communication mode (7F 00 00 01) is always switched off again
+on exit. The only other write is `irname`, which writes one user IR's 32-byte
+name, reads it back, then restores the original bytes and verifies them.
 """
 
 from __future__ import annotations
@@ -368,6 +369,31 @@ def cmd_rq1(addr: str, size: str):
         p.close()
 
 
+def cmd_irname(slot: int, name: str):
+    """Rename user IR `slot`, verify, then restore the exact original name."""
+    assert 1 <= slot <= 128 and len(name) <= 32 and name.isascii()
+    log = logger(LOGS / "irname.log")
+    p = Pedal(log)
+    base = unpack(pack(0x68000000) + (slot - 1) * pack(0x00020000))
+    try:
+        p.identity()
+        p.editor_on()
+        _, orig = p.read(base, 32)
+        log(f"original: {hexs(orig)} {orig!r}")
+        assert len(orig) == 32, "could not read the original name"
+        new = list(name.encode().ljust(32, b" "))
+        p.dt1(base, new)
+        time.sleep(0.2)
+        _, got = p.read(base, 32)
+        log(f"after rename: {got!r} -> {'OK' if list(got) == new else 'MISMATCH'}")
+        p.dt1(base, list(orig))
+        time.sleep(0.2)
+        _, back = p.read(base, 32)
+        log(f"restored: {back!r} -> {'OK' if back == orig else 'MISMATCH'}")
+    finally:
+        p.close()
+
+
 if __name__ == "__main__":
     a = sys.argv[1:]
     if not a or a[0] == "ports":
@@ -379,5 +405,7 @@ if __name__ == "__main__":
         cmd_listen(int(a[1]) if len(a) > 1 else 120)
     elif a[0] == "rq1":
         cmd_rq1(a[1], a[2])
+    elif a[0] == "irname":
+        cmd_irname(int(a[1]), a[2])
     else:
         sys.exit(__doc__)

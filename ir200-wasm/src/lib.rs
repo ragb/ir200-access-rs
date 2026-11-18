@@ -7,7 +7,7 @@
 
 use ir200_core::address::{
     add_offset, from_u28, ir_slot_base, memory_base, size_field, to_u28, AddressSpace,
-    CMD_COMM_MODE, IR_FILE_OFFSET, IR_NAME_LEN, SETUP_BASE, TEMPORARY_BASE,
+    CMD_COMM_MODE, IR_NAME_LEN, SETUP_BASE, TEMPORARY_BASE,
 };
 use ir200_core::codec::Block;
 use ir200_core::device::{
@@ -264,8 +264,8 @@ fn slot_base(slot: u8) -> Result<[u8; 4], JsError> {
     ir_slot_base(slot).ok_or_else(|| JsError::new("IR slot must be 1-128"))
 }
 
-/// RQ1 for user IR slot `slot` (1–128): its name and file-name length (two
-/// DT1 replies).
+/// RQ1 for user IR slot `slot` (1–128): its name and file-name length, 36
+/// bytes (the pedal answers with one DT1).
 #[wasm_bindgen(js_name = irSlotRequest)]
 pub fn ir_slot_request(slot: u8) -> Result<Vec<u8>, JsError> {
     let base = slot_base(slot)?;
@@ -277,8 +277,10 @@ pub fn ir_slot_request(slot: u8) -> Result<Vec<u8>, JsError> {
 pub fn decode_ir_slot(frames: &[u8], slot: u8) -> Result<IrSlot, JsError> {
     let base = slot_base(slot)?;
     let f = dt1_frames(frames);
-    let name = collect(&f, base, IR_NAME_LEN).map_err(js_err)?;
-    let len = collect(&f, add_offset(base, IR_FILE_OFFSET), 4).map_err(js_err)?;
+    // One read covers the name and the file-name length right after it; the
+    // pedal answers in a single DT1, so collect it as one run from the base.
+    let bytes = collect(&f, base, IR_NAME_LEN + 4).map_err(js_err)?;
+    let (name, len) = bytes.split_at(IR_NAME_LEN);
     let n = len.iter().fold(0u32, |a, &x| (a << 4) | (x & 0x0F) as u32);
     let name: String = name
         .iter()
@@ -306,6 +308,74 @@ pub fn ir_rename_frame(slot: u8, name: &str) -> Result<Vec<u8>, JsError> {
     let mut b = name.as_bytes().to_vec();
     b.resize(IR_NAME_LEN, b' ');
     Ok(Frame::data_set(DEVICE_ID_DEFAULT, slot_base(slot)?, b).encode())
+}
+
+/// What a WAV file holds, for the load dialog.
+#[derive(Serialize, Tsify)]
+#[serde(rename_all = "camelCase")]
+#[tsify(into_wasm_abi)]
+pub struct WavInfo {
+    pub channels: u16,
+    pub sample_rate: u32,
+    pub bits: u16,
+    /// Length in seconds.
+    pub seconds: f64,
+}
+
+/// Read a WAV file's format. Errors with a plain-language reason when the
+/// pedal can't take it.
+#[wasm_bindgen(js_name = wavInfo)]
+pub fn wav_info(data: &[u8]) -> Result<WavInfo, JsError> {
+    let w = ir200_core::irconv::read_wav(data).map_err(js_err)?;
+    Ok(WavInfo {
+        channels: w.channels,
+        sample_rate: w.rate,
+        bits: w.bits,
+        seconds: w.frames() as f64 / w.rate as f64,
+    })
+}
+
+/// Offset of the coefficient block in a user IR slot.
+const IR_COEF_OFFSET: [u8; 4] = [0x00, 0x00, 0x02, 0x24];
+/// Offset of the file name (UTF-8, two nibbles per byte) in a slot.
+const IR_FILE_NAME_OFFSET: [u8; 4] = [0x00, 0x00, 0x00, 0x24];
+
+/// Convert `wav` and build every DT1 that loads it into user IR `slot`, in
+/// IR Loader's order: name (32 bytes), file name (120 bytes per message),
+/// coefficients (30 values per message). Send them a few ms apart. The pedal
+/// sets the file-name length itself, which marks the slot used.
+#[wasm_bindgen(js_name = irLoadFrames)]
+pub fn ir_load_frames(
+    slot: u8,
+    wav: &[u8],
+    channel: u8,
+    name: &str,
+    file_name: &str,
+) -> Result<Vec<u8>, JsError> {
+    let base = slot_base(slot)?;
+    let coefs = ir200_core::irconv::convert_wav(wav, channel as usize).map_err(js_err)?;
+    let mut out = ir_rename_frame(slot, name)?;
+    // File name: UTF-8, under 128 bytes, cut on a character boundary.
+    let mut end = file_name.len().min(127);
+    while !file_name.is_char_boundary(end) {
+        end -= 1;
+    }
+    let nib: Vec<u8> = file_name.as_bytes()[..end]
+        .iter()
+        .flat_map(|b| [b >> 4, b & 0x0F])
+        .collect();
+    let mut a = to_u28(add_offset(base, IR_FILE_NAME_OFFSET));
+    for chunk in nib.chunks(240) {
+        out.extend(Frame::data_set(DEVICE_ID_DEFAULT, from_u28(a), chunk.to_vec()).encode());
+        a += chunk.len() as u32;
+    }
+    let data = ir200_core::irconv::to_nibbles(&coefs);
+    let mut a = to_u28(add_offset(base, IR_COEF_OFFSET));
+    for chunk in data.chunks(240) {
+        out.extend(Frame::data_set(DEVICE_ID_DEFAULT, from_u28(a), chunk.to_vec()).encode());
+        a += chunk.len() as u32;
+    }
+    Ok(out)
 }
 
 /// First cab type that is a user IR (user IR n = this + n − 1).
@@ -435,5 +505,25 @@ mod tests {
     fn catalog_lists() {
         assert_eq!(super::catalog_list("cab_type").len(), 337);
         assert_eq!(super::catalog_list("amp_type")[1], "NATURAL");
+    }
+}
+
+#[cfg(test)]
+mod ir_slot_tests {
+    use super::*;
+
+    #[test]
+    fn decodes_the_pedals_single_dt1_reply() {
+        // Real reply to RQ1 68 02 00 00 size 36 (user IR 2).
+        let hex = "F0 41 10 00 00 00 00 06 12 68 02 00 00 54 46 20 36 35 20 54 57 49 4E 20 32                    58 31 32 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 00 00 03 04 5B F7";
+        let reply: Vec<u8> = hex
+            .split_whitespace()
+            .map(|b| u8::from_str_radix(b, 16).unwrap())
+            .collect();
+        let Ok(s) = decode_ir_slot(&reply, 2) else {
+            panic!("the reply should decode");
+        };
+        assert_eq!(s.name, "TF 65 TWIN 2X12");
+        assert!(s.used);
     }
 }

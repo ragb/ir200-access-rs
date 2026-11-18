@@ -16,6 +16,7 @@ schema = ["dep:schemars", "midi-access-core/schema"]
 [dependencies]
 midi-access-core = { workspace = true }
 thiserror = { workspace = true }
+realfft = "3.4"
 serde = { workspace = true }
 serde_yaml = { workspace = true }
 tsify-next = { workspace = true, optional = true }
