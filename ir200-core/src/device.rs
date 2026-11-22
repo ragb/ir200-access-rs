@@ -391,6 +391,35 @@ mod tests {
         Ir200::encode(area, doc, 0).unwrap()
     }
 
+    /// What the CLI / MCP `sync`, `--store` and `load` send must never touch the
+    /// `7F` command area (running mode / factory reset, IR data init, patch
+    /// write, temp clear): every DT1 lands in a data area.
+    #[test]
+    fn writes_never_address_the_command_area() {
+        let mut sent = Vec::new();
+        for a in AREAS {
+            let doc = Ir200::defaults(a.name).unwrap();
+            sent.extend(split_sysex(&Ir200::encode(a.name, &doc, 0).unwrap()));
+            if let Some(r) = Ir200::store(a.name, &doc, "128", 0) {
+                sent.extend(split_sysex(&r.unwrap()));
+            }
+        }
+        sent.extend(Ir200::recall("128", 0).unwrap().unwrap());
+        assert!(!sent.is_empty());
+        for f in &sent {
+            let f = Frame::decode(f).unwrap();
+            assert_eq!(f.command, CMD_DT1);
+            assert!(f.address[0] < 0x7F, "{:02X?}", f.address);
+        }
+        // Store is the edit area only, and is a copy into that memory's range.
+        let edit = Ir200::defaults("edit").unwrap();
+        assert!(Ir200::store("system", &edit, "1", 0).is_none());
+        let first =
+            Frame::decode(&split_sysex(&Ir200::store("edit", &edit, "1", 0).unwrap().unwrap())[0])
+                .unwrap();
+        assert_eq!(first.address, [0x20, 0x10, 0x00, 0x00]);
+    }
+
     #[test]
     fn every_area_round_trips_through_its_defaults() {
         for a in AREAS {

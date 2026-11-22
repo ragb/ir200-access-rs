@@ -17,7 +17,7 @@ power cycle, and live change reports. See [`docs/sysex-notes.md`](docs/sysex-not
 | Crate | What it is |
 |-------|-----------|
 | **`ir200-core`** | Pure codec (`Device` impl, typed models, SysEx framing, live change descriptions). No I/O; compiles for `wasm32-unknown-unknown`. |
-| **`ir200`** | CLI: the generic `midi-access-cli` engine dispatched through `Device for Ir200`. |
+| **`ir200`** | CLI (`ir200`) and MCP server (`ir200-mcp`): the generic `midi-access-cli` / `midi-access-mcp` engines dispatched through `Device for Ir200`. |
 | **`ir200-wasm`** | `wasm-bindgen` + TypeScript bindings for the editor. |
 
 ## Areas
@@ -47,6 +47,26 @@ ir200 identity | ports
 Value names work anywhere a number does (`amp_type: X-HI GAIN`,
 `cab_type: 412 BRIT STK DYN57-S`, `rx_channel: OFF`); `ir200 resolve` shows the
 numbers they become.
+
+## MCP server
+
+`ir200-mcp` serves the parameter metadata, catalogs, schemas and factory
+defaults to an assistant over the Model Context Protocol, plus `dump` / `sync`
+when given a port:
+
+```sh
+cargo install --path ir200 --bin ir200-mcp
+claude mcp add ir200 -- ir200-mcp --port IR-200
+```
+
+```json
+{ "mcpServers": { "ir200": { "command": "ir200-mcp", "args": ["--port", "IR-200"] } } }
+```
+
+`sync edit` writes the temporary memory only; saving to memory 1–128 needs the
+explicit `store` argument. `--read-only` serves everything but refuses writes.
+The server never writes the `7F` command area (factory reset, IR data init,
+patch write, temp clear).
 
 ## Wire protocol
 

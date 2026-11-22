@@ -5,13 +5,21 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "CLI for the BOSS IR-200 (dump/sync/diff/show/lint/schema/catalog/resolve)."
+description = "CLI + MCP server for the BOSS IR-200 (dump/sync/diff/show/lint/schema/catalog/resolve)."
 
 [[bin]]
 name = "ir200"
 path = "src/main.rs"
 
+# MCP server for LLM-assisted preset authoring.
+[[bin]]
+name = "ir200-mcp"
+path = "src/bin/mcp.rs"
+
 [dependencies]
-# The CLI is the generic engine; `ir200` only wires its Device impl into `run`.
+# Both engines are generic; `ir200` only wires its Device impl into them.
 ir200-core = { workspace = true, features = ["schema"] }
 midi-access-cli = { workspace = true }
+midi-access-mcp = { workspace = true }
+anyhow = { workspace = true }
+clap = { workspace = true }
