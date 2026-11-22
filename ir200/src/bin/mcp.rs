@@ -33,7 +33,7 @@ struct Cli {
     /// MIDI output port substring (overrides --port).
     #[arg(long)]
     output_port: Option<String>,
-    /// Device number (0..=15) — 0 is the IR-200's SysEx device ID 10H.
+    /// Device number (0..=15). The IR-200 codec always addresses SysEx device ID 10H.
     #[arg(long, default_value_t = 0)]
     device: u8,
     /// Serve the reference tools and `dump`, but refuse to write to the device.

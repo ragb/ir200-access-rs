@@ -63,7 +63,7 @@ claude mcp add ir200 -- ir200-mcp --port IR-200
 { "mcpServers": { "ir200": { "command": "ir200-mcp", "args": ["--port", "IR-200"] } } }
 ```
 
-`sync edit` writes the temporary memory only; saving to memory 1–128 needs the
+`sync edit` writes the temporary memory only; saving to memory 1â€“128 needs the
 explicit `store` argument. `--read-only` serves everything but refuses writes.
 The server never writes the `7F` command area (factory reset, IR data init,
 patch write, temp clear).
