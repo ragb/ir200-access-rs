@@ -52,7 +52,9 @@ pub enum WavError {
     NoData,
     #[error("{0} channels: only mono and stereo WAV files can be loaded")]
     Channels(u16),
-    #[error("unsupported WAV format (format {tag}, {bits} bit); use 16, 24 or 32 bit PCM, or 32 bit float")]
+    #[error(
+        "unsupported WAV format (format {tag}, {bits} bit); use 16, 24 or 32 bit PCM, or 32 bit float"
+    )]
     Format { tag: u16, bits: u16 },
     #[error("the WAV file is silent")]
     Silent,
@@ -181,11 +183,7 @@ fn trim_and_select(wav: &Wav, channel: usize) -> (Vec<f64>, u32) {
 }
 
 fn sinc_at(a: f64) -> f64 {
-    if a == 0.0 {
-        1.0
-    } else {
-        a.sin() / a
-    }
+    if a == 0.0 { 1.0 } else { a.sin() / a }
 }
 
 /// Truncated-sinc resampler (rectangular window, ±1024 input taps).
@@ -220,11 +218,7 @@ fn resample_to_96k(x: &[f64], fs: u32) -> Vec<f64> {
                 };
                 acc += sinc_at(a) * x[j as usize];
             }
-            if down {
-                acc
-            } else {
-                (fsd / FS) * acc
-            }
+            if down { acc } else { (fsd / FS) * acc }
         })
         .collect()
 }
@@ -496,7 +490,7 @@ mod tests {
         assert_eq!(v.len(), NUM_COEFS);
         assert_eq!(v[NUM_COEFS - 1], 1.0);
         assert_eq!(v[NUM_COEFS - 2], 1.0); // the first sample, sin(0) = 0, is trimmed
-                                           // Tap positions are even multiples of 2^-14 (odd taps are zero).
+        // Tap positions are even multiples of 2^-14 (odd taps are zero).
         for p in &v[NUM_TAPS..2 * NUM_TAPS] {
             let i = (p * 16384.0).round() as i64;
             assert!(i % 2 == 0 && (0..=4080).contains(&i));

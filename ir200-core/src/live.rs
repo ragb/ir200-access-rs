@@ -5,11 +5,11 @@
 //! parameters it touches, each with a document path, a label and a spoken
 //! value, so a host can say "Gain 61" as the knob turns.
 
-use midi_access_core::meta::Kind;
 use midi_access_core::Catalogs;
+use midi_access_core::meta::Kind;
 use serde::Serialize;
 
-use crate::address::{to_u28, AddressSpace, TEMPORARY_BASE};
+use crate::address::{AddressSpace, TEMPORARY_BASE, to_u28};
 use crate::codec::{Enc, P};
 use crate::memory::Memory;
 use crate::setup::Setup;
@@ -17,7 +17,7 @@ use crate::system::System;
 use crate::{catalog, map};
 
 /// One parameter a DT1 changed.
-#[cfg_attr(feature = "tsify", derive(tsify_next::Tsify))]
+#[cfg_attr(feature = "tsify", derive(tsify::Tsify))]
 #[cfg_attr(feature = "tsify", tsify(into_wasm_abi))]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Change {

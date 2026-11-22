@@ -15,7 +15,7 @@
 
 use midi_access_core::meta::{Kind, Level, ParamMeta};
 use midi_access_core::{Catalogs, Params};
-use serde_yaml::{Mapping, Value};
+use serde_norway::{Mapping, Value};
 
 /// The IR-200's catalogs.
 pub struct Ir200Catalogs;
@@ -309,6 +309,7 @@ const fn tg(
 /// prefix the editor reuses for every instance: `eq.*` (memory EQ A/B and
 /// global EQ A/B), `cabinet.*` (cabinet A/B), `switch.*` (DOWN, UP, CTL1, CTL2
 /// in memories and system), `exp.*` (memory and system EXP).
+#[rustfmt::skip]
 static PARAMS: &[ParamMeta] = &[
     // ===== Memory =====
     p("memory.name", "Name", "Memory", "Memory name, up to 16 characters."),

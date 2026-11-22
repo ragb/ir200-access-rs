@@ -1,30 +1,28 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 members = ["ir200-core", "ir200", "ir200-wasm"]
 
 [workspace.package]
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+rust-version = "1.89"
 license = "MIT"
 repository = "https://github.com/ragb/ir200-access-rs"
-description = "BOSS IR-200 amp & IR cabinet pedal SysEx codec, CLI, and WASM bindings."
 
 [workspace.dependencies]
 ir200-core = { path = "ir200-core" }
 # Shared foundation crates, pinned to the published kit (same tag the rest of the
 # family uses). For local development against an unreleased kit, point these at
 # `path = "../midi-access-kit/<crate>"`.
-midi-access-core = { git = "https://github.com/ragb/midi-access-kit", tag = "v0.5.3" }
-midi-access-cli = { git = "https://github.com/ragb/midi-access-kit", tag = "v0.5.3" }
-thiserror = "1"
+midi-access-core = { git = "https://github.com/ragb/midi-access-kit", tag = "v0.6.0" }
+midi-access-cli = { git = "https://github.com/ragb/midi-access-kit", tag = "v0.6.0" }
+thiserror = "2"
 serde = { version = "1", features = ["derive"] }
-serde_yaml = "0.9"
-serde_json = "1"
+serde_norway = "0.9"
 wasm-bindgen = "0.2"
 serde-wasm-bindgen = "0.6"
-tsify-next = { version = "0.5", features = ["js"] }
-getrandom = { version = "0.3", features = ["wasm_js"] }
-schemars = "0.8"
+tsify = { version = "0.5", features = ["js"] }
+schemars = "1"
 
 [profile.release]
 lto = "thin"

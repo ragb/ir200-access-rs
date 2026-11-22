@@ -6,7 +6,7 @@
 
 use std::collections::BTreeMap;
 
-use ir200_core::address::{memory_base, TEMPORARY_BASE};
+use ir200_core::address::{TEMPORARY_BASE, memory_base};
 use ir200_core::device::{decode_memory_at, dt1_frames, encode_memory_at};
 use ir200_core::types::AmbienceType;
 use ir200_core::{Ir200, ProgramChangeMap, System};
@@ -39,7 +39,7 @@ fn setup_is_zero_based() {
 fn system_round_trips_byte_exact() {
     let raw = fixture("system.syx");
     let v = Ir200::decode("system", &raw).unwrap();
-    let s: System = serde_yaml::from_value(v.clone()).unwrap();
+    let s: System = serde_norway::from_value(v.clone()).unwrap();
     assert!(s.modules.amp);
     let again = Ir200::encode("system", &v, 0).unwrap();
     assert_eq!(by_address(&again), by_address(&raw));
@@ -90,7 +90,7 @@ fn factory_memories_decode_and_round_trip() {
 fn pc_map_round_trips_byte_exact() {
     let raw = fixture("pc-map.syx");
     let v = Ir200::decode("pc-map", &raw).unwrap();
-    let m: ProgramChangeMap = serde_yaml::from_value(v.clone()).unwrap();
+    let m: ProgramChangeMap = serde_norway::from_value(v.clone()).unwrap();
     assert_eq!(m.memory.len(), 128);
     // Stock entries map PC#n to memory n.
     assert_eq!(m.memory[127], 128);

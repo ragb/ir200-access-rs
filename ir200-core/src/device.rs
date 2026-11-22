@@ -1,5 +1,5 @@
 //! [`Device`] implementation for the BOSS IR-200: plugs the typed codec into
-//! the generic CLI engine (`midi-access-cli`) with `serde_yaml::Value` as the
+//! the generic CLI engine (`midi-access-cli`) with `serde_norway::Value` as the
 //! document format.
 //!
 //! ## Areas
@@ -14,18 +14,18 @@
 //! memories 1–128 are reached through `--store <n>` (copy the document to that
 //! memory) and `load <n>` (select it), and from the wasm layer.
 
-use serde_yaml::Value;
+use serde_norway::Value;
 
-use midi_access_core::{split_sysex, Area, Catalogs, Device, DeviceError, Inbound, Params};
+use midi_access_core::{Area, Catalogs, Device, DeviceError, Inbound, Params, split_sysex};
 
 use crate::address::{
-    from_u28, memory_base, size_field, to_u28, AddressSpace, SETUP_BASE, TEMPORARY_BASE,
+    AddressSpace, SETUP_BASE, TEMPORARY_BASE, from_u28, memory_base, size_field, to_u28,
 };
 use crate::codec::{Block, CodecError};
 use crate::memory::Memory;
 use crate::pc_map::ProgramChangeMap;
 use crate::setup::Setup;
-use crate::sysex::{identify, Frame, CMD_DT1, DEVICE_ID_DEFAULT};
+use crate::sysex::{CMD_DT1, DEVICE_ID_DEFAULT, Frame, identify};
 use crate::system::System;
 
 /// The BOSS IR-200.
@@ -228,10 +228,10 @@ impl Device for Ir200 {
 
     fn defaults(area: &str) -> Option<Value> {
         match target(area)? {
-            Target::Setup => serde_yaml::to_value(Setup { memory_index: 0 }).ok(),
-            Target::System => serde_yaml::to_value(System::init()).ok(),
-            Target::Edit => serde_yaml::to_value(Memory::init_memory()).ok(),
-            Target::PcMap => serde_yaml::to_value(ProgramChangeMap::init()).ok(),
+            Target::Setup => serde_norway::to_value(Setup { memory_index: 0 }).ok(),
+            Target::System => serde_norway::to_value(System::init()).ok(),
+            Target::Edit => serde_norway::to_value(Memory::init_memory()).ok(),
+            Target::PcMap => serde_norway::to_value(ProgramChangeMap::init()).ok(),
         }
     }
 
@@ -267,19 +267,19 @@ impl Device for Ir200 {
         match target(area).ok_or_else(|| unknown(area))? {
             Target::Setup => {
                 let d = collect(&frames, SETUP_BASE, Setup::BLOCK.len).map_err(dec)?;
-                serde_yaml::to_value(Setup::from_bytes(&d).map_err(dec)?).map_err(dec)
+                serde_norway::to_value(Setup::from_bytes(&d).map_err(dec)?).map_err(dec)
             }
             Target::System => {
-                serde_yaml::to_value(decode_system(&frames).map_err(dec)?).map_err(dec)
+                serde_norway::to_value(decode_system(&frames).map_err(dec)?).map_err(dec)
             }
             Target::Edit => {
-                serde_yaml::to_value(decode_memory_at(&frames, TEMPORARY_BASE).map_err(dec)?)
+                serde_norway::to_value(decode_memory_at(&frames, TEMPORARY_BASE).map_err(dec)?)
                     .map_err(dec)
             }
             Target::PcMap => {
                 let b = &crate::map::midi_pcmap::BLOCK;
                 let d = collect(&frames, b.address(), b.len).map_err(dec)?;
-                serde_yaml::to_value(ProgramChangeMap::from_bytes(&d).map_err(dec)?).map_err(dec)
+                serde_norway::to_value(ProgramChangeMap::from_bytes(&d).map_err(dec)?).map_err(dec)
             }
         }
     }
@@ -288,11 +288,11 @@ impl Device for Ir200 {
         let id = device_id(ch);
         match target(area).ok_or_else(|| unknown(area))? {
             Target::Setup => {
-                let s: Setup = serde_yaml::from_value(doc.clone()).map_err(enc)?;
+                let s: Setup = serde_norway::from_value(doc.clone()).map_err(enc)?;
                 Ok(data_set_frames(id, SETUP_BASE, &s.to_bytes().map_err(enc)?))
             }
             Target::System => {
-                let s: System = serde_yaml::from_value(doc.clone()).map_err(enc)?;
+                let s: System = serde_norway::from_value(doc.clone()).map_err(enc)?;
                 let mut out = Vec::new();
                 for (b, data) in s.to_blocks().map_err(enc)? {
                     out.extend(data_set_frames(id, b.address(), &data));
@@ -300,11 +300,11 @@ impl Device for Ir200 {
                 Ok(out)
             }
             Target::Edit => {
-                let m: Memory = serde_yaml::from_value(doc.clone()).map_err(enc)?;
+                let m: Memory = serde_norway::from_value(doc.clone()).map_err(enc)?;
                 encode_memory_at(&m, TEMPORARY_BASE, id).map_err(enc)
             }
             Target::PcMap => {
-                let m: ProgramChangeMap = serde_yaml::from_value(doc.clone()).map_err(enc)?;
+                let m: ProgramChangeMap = serde_norway::from_value(doc.clone()).map_err(enc)?;
                 let b = &crate::map::midi_pcmap::BLOCK;
                 Ok(data_set_frames(
                     id,
@@ -323,7 +323,7 @@ impl Device for Ir200 {
         }
         Some((|| {
             let n = memory_dest(dest)?;
-            let m: Memory = serde_yaml::from_value(doc.clone()).map_err(enc)?;
+            let m: Memory = serde_norway::from_value(doc.clone()).map_err(enc)?;
             encode_memory_at(&m, memory_base(n).unwrap(), device_id(ch)).map_err(enc)
         })())
     }
@@ -343,7 +343,7 @@ impl Device for Ir200 {
                 model: is_ir200.then(|| "IR-200".to_string()),
             };
         }
-        use crate::inbound::{classify_inbound as core, InboundMessage};
+        use crate::inbound::{InboundMessage, classify_inbound as core};
         match core(bytes) {
             InboundMessage::DataSet {
                 space,
@@ -373,10 +373,10 @@ impl Device for Ir200 {
     fn accepts(area: &str, doc: &Value) -> bool {
         let v = doc.clone();
         match target(area) {
-            Some(Target::Setup) => serde_yaml::from_value::<Setup>(v).is_ok(),
-            Some(Target::System) => serde_yaml::from_value::<System>(v).is_ok(),
-            Some(Target::Edit) => serde_yaml::from_value::<Memory>(v).is_ok(),
-            Some(Target::PcMap) => serde_yaml::from_value::<ProgramChangeMap>(v).is_ok(),
+            Some(Target::Setup) => serde_norway::from_value::<Setup>(v).is_ok(),
+            Some(Target::System) => serde_norway::from_value::<System>(v).is_ok(),
+            Some(Target::Edit) => serde_norway::from_value::<Memory>(v).is_ok(),
+            Some(Target::PcMap) => serde_norway::from_value::<ProgramChangeMap>(v).is_ok(),
             None => false,
         }
     }
@@ -418,7 +418,7 @@ mod tests {
     fn decode_survives_split_replies() {
         // The pedal may answer one RQ1 with several DT1s; chain them.
         let doc = Ir200::defaults("pc-map").unwrap();
-        let m: ProgramChangeMap = serde_yaml::from_value(doc.clone()).unwrap();
+        let m: ProgramChangeMap = serde_norway::from_value(doc.clone()).unwrap();
         let bytes = m.to_bytes().unwrap();
         let mut dump = Vec::new();
         let mut a = to_u28([0x50, 0, 0, 0]);

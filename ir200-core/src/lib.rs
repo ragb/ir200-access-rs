@@ -8,6 +8,11 @@
 //! No I/O, no threads, no MIDI backend: compiles for `wasm32-unknown-unknown`.
 
 #![forbid(unsafe_code)]
+// tsify 0.5.8 deprecates `#[tsify(into_wasm_abi, from_wasm_abi)]`; the warning
+// lands in every module holding such a derive (including `byte_enum!`/`block!`
+// expansions). Migrating to `tsify::Ts<T>` would change the wasm ABI the web
+// editor relies on, so keep the attributes and silence the deprecation.
+#![cfg_attr(feature = "tsify", allow(deprecated))]
 
 pub mod address;
 pub mod catalog;
@@ -25,13 +30,13 @@ pub mod system;
 pub mod types;
 pub mod yaml;
 
-pub use catalog::{Ir200Catalogs, IR200_CATALOGS};
+pub use catalog::{IR200_CATALOGS, Ir200Catalogs};
 pub use codec::CodecError;
 pub use device::Ir200;
-pub use inbound::{classify_inbound, InboundMessage};
-pub use live::{describe, Change};
+pub use inbound::{InboundMessage, classify_inbound};
+pub use live::{Change, describe};
 pub use memory::Memory;
 pub use pc_map::ProgramChangeMap;
 pub use setup::Setup;
-pub use sysex::{identify, identity_request, Frame, SysExError, CMD_DT1, CMD_RQ1, IR200_MODEL_ID};
+pub use sysex::{CMD_DT1, CMD_RQ1, Frame, IR200_MODEL_ID, SysExError, identify, identity_request};
 pub use system::System;

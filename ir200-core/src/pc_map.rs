@@ -14,7 +14,7 @@ use crate::map;
 pub const PC_COUNT: usize = 128;
 
 /// The map as stored: `memory[i]` is the stored value for PC#`i + 1`.
-#[cfg_attr(feature = "tsify", derive(tsify_next::Tsify))]
+#[cfg_attr(feature = "tsify", derive(tsify::Tsify))]
 #[cfg_attr(feature = "tsify", tsify(into_wasm_abi, from_wasm_abi))]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(deny_unknown_fields))]

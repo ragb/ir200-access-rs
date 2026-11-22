@@ -218,9 +218,9 @@ pub trait Show {
 
 impl<T: Display + serde::Serialize> Show for T {
     fn show(v: i64) -> String {
-        match T::from_display(v).map(|x| serde_yaml::to_value(&x)) {
-            Some(Ok(serde_yaml::Value::Bool(b))) => if b { "on" } else { "off" }.to_string(),
-            Some(Ok(serde_yaml::Value::String(s))) => s.replace('_', " "),
+        match T::from_display(v).map(|x| serde_norway::to_value(&x)) {
+            Some(Ok(serde_norway::Value::Bool(b))) => if b { "on" } else { "off" }.to_string(),
+            Some(Ok(serde_norway::Value::String(s))) => s.replace('_', " "),
             _ => v.to_string(),
         }
     }
@@ -305,7 +305,7 @@ impl Field for String {
 macro_rules! value_enum {
     ($(#[$m:meta])* $name:ident { $($(#[$vm:meta])* $v:ident = $n:expr),+ $(,)? }) => {
         $(#[$m])*
-        #[cfg_attr(feature = "tsify", derive(tsify_next::Tsify))]
+        #[cfg_attr(feature = "tsify", derive(tsify::Tsify))]
         #[cfg_attr(feature = "tsify", tsify(into_wasm_abi, from_wasm_abi))]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -332,7 +332,7 @@ macro_rules! value_enum {
 macro_rules! block {
     ($(#[$m:meta])* $name:ident = $blk:path { $( $(#[$fm:meta])* $f:ident : $t:ty = $p:path ),* $(,)? }) => {
         $(#[$m])*
-        #[cfg_attr(feature = "tsify", derive(tsify_next::Tsify))]
+        #[cfg_attr(feature = "tsify", derive(tsify::Tsify))]
         #[cfg_attr(feature = "tsify", tsify(into_wasm_abi, from_wasm_abi))]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         #[cfg_attr(feature = "schema", schemars(deny_unknown_fields))]
@@ -387,7 +387,7 @@ macro_rules! block {
 macro_rules! area {
     ($(#[$m:meta])* $name:ident { $( $(#[$fm:meta])* $f:ident : $t:ty = $kind:ident($p:path) ),* $(,)? }) => {
         $(#[$m])*
-        #[cfg_attr(feature = "tsify", derive(tsify_next::Tsify))]
+        #[cfg_attr(feature = "tsify", derive(tsify::Tsify))]
         #[cfg_attr(feature = "tsify", tsify(into_wasm_abi, from_wasm_abi))]
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         #[cfg_attr(feature = "schema", schemars(deny_unknown_fields))]

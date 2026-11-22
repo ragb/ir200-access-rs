@@ -5,9 +5,13 @@
 //! Typed documents (`Memory`, `System`, `ProgramChangeMap`) render as
 //! TypeScript types through the `tsify` derives in the core crate.
 
+// tsify 0.5.8 deprecates `#[tsify(into_wasm_abi)]`; keep it (moving to
+// `tsify::Ts<T>` would change the wasm ABI the web editor uses).
+#![allow(deprecated)]
+
 use ir200_core::address::{
-    add_offset, from_u28, ir_slot_base, memory_base, size_field, to_u28, AddressSpace,
-    CMD_COMM_MODE, IR_NAME_LEN, SETUP_BASE, TEMPORARY_BASE,
+    AddressSpace, CMD_COMM_MODE, IR_NAME_LEN, SETUP_BASE, TEMPORARY_BASE, add_offset, from_u28,
+    ir_slot_base, memory_base, size_field, to_u28,
 };
 use ir200_core::codec::Block;
 use ir200_core::device::{
@@ -15,12 +19,12 @@ use ir200_core::device::{
 };
 use ir200_core::sysex::DEVICE_ID_DEFAULT;
 use ir200_core::{
-    classify_inbound as core_classify, identify, identity_request, Change, Frame, InboundMessage,
-    Memory, ProgramChangeMap, Setup, System,
+    Change, Frame, InboundMessage, Memory, ProgramChangeMap, Setup, System,
+    classify_inbound as core_classify, identify, identity_request,
 };
 use midi_access_core::Catalogs;
 use serde::Serialize;
-use tsify_next::Tsify;
+use tsify::Tsify;
 use wasm_bindgen::prelude::*;
 
 fn js_err(e: impl std::fmt::Display) -> JsError {

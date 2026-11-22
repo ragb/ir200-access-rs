@@ -1,247 +1,283 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "System",
   "description": "Global settings.",
   "type": "object",
-  "required": [
-    "control_preferences",
-    "ctl1",
-    "ctl2",
-    "eq_a",
-    "eq_b",
-    "eq_link",
-    "exp",
-    "fsw_down",
-    "fsw_up",
-    "input",
-    "memory_extent",
-    "midi",
-    "modules",
-    "output_a",
-    "output_b",
-    "output_link",
-    "phones",
-    "preferences",
-    "usb"
-  ],
   "properties": {
     "control_preferences": {
-      "$ref": "#/definitions/ControlPreferences"
+      "$ref": "#/$defs/ControlPreferences"
     },
     "ctl1": {
-      "$ref": "#/definitions/Switch"
+      "$ref": "#/$defs/Switch"
     },
     "ctl2": {
-      "$ref": "#/definitions/Switch"
+      "$ref": "#/$defs/Switch"
     },
     "eq_a": {
-      "$ref": "#/definitions/Eq"
+      "$ref": "#/$defs/Eq"
     },
     "eq_b": {
-      "$ref": "#/definitions/Eq"
+      "$ref": "#/$defs/Eq"
     },
     "eq_link": {
       "description": "GLOBAL EQ A/B LINK.",
       "type": "boolean"
     },
     "exp": {
-      "$ref": "#/definitions/Expression"
+      "$ref": "#/$defs/Expression"
     },
     "fsw_down": {
-      "$ref": "#/definitions/Switch"
+      "$ref": "#/$defs/Switch"
     },
     "fsw_up": {
-      "$ref": "#/definitions/Switch"
+      "$ref": "#/$defs/Switch"
     },
     "input": {
-      "$ref": "#/definitions/Input"
+      "$ref": "#/$defs/Input"
     },
     "memory_extent": {
-      "$ref": "#/definitions/MemoryExtent"
+      "$ref": "#/$defs/MemoryExtent"
     },
     "midi": {
-      "$ref": "#/definitions/Midi"
+      "$ref": "#/$defs/Midi"
     },
     "modules": {
-      "$ref": "#/definitions/Modules"
+      "$ref": "#/$defs/Modules"
     },
     "output_a": {
-      "$ref": "#/definitions/OutputType"
+      "$ref": "#/$defs/OutputType"
     },
     "output_b": {
-      "$ref": "#/definitions/OutputType"
+      "$ref": "#/$defs/OutputType"
     },
     "output_link": {
       "description": "OUTPUT SELECT A/B LINK.",
       "type": "boolean"
     },
     "phones": {
-      "$ref": "#/definitions/Phones"
+      "$ref": "#/$defs/Phones"
     },
     "preferences": {
-      "$ref": "#/definitions/Preferences"
+      "$ref": "#/$defs/Preferences"
     },
     "usb": {
-      "$ref": "#/definitions/Usb"
+      "$ref": "#/$defs/Usb"
     }
   },
   "additionalProperties": false,
-  "definitions": {
+  "required": [
+    "modules",
+    "phones",
+    "eq_link",
+    "eq_a",
+    "eq_b",
+    "output_link",
+    "output_a",
+    "output_b",
+    "memory_extent",
+    "usb",
+    "midi",
+    "preferences",
+    "input",
+    "control_preferences",
+    "fsw_down",
+    "fsw_up",
+    "ctl1",
+    "ctl2",
+    "exp"
+  ],
+  "$defs": {
     "ControlPreferences": {
       "description": "Controller PREF: per-memory or system-wide footswitch, CTL and EXP settings.",
       "type": "object",
-      "required": [
-        "ctl1",
-        "ctl2",
-        "exp",
-        "fsw_down",
-        "fsw_up"
-      ],
       "properties": {
         "ctl1": {
-          "$ref": "#/definitions/Preference"
+          "$ref": "#/$defs/Preference"
         },
         "ctl2": {
-          "$ref": "#/definitions/Preference"
+          "$ref": "#/$defs/Preference"
         },
         "exp": {
-          "$ref": "#/definitions/Preference"
+          "$ref": "#/$defs/Preference"
         },
         "fsw_down": {
-          "$ref": "#/definitions/Preference"
+          "$ref": "#/$defs/Preference"
         },
         "fsw_up": {
-          "$ref": "#/definitions/Preference"
+          "$ref": "#/$defs/Preference"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "fsw_down",
+        "fsw_up",
+        "ctl1",
+        "ctl2",
+        "exp"
+      ]
     },
     "Eq": {
       "description": "EQ A or B (memory and global EQ share the layout).",
       "type": "object",
-      "required": [
-        "eq_type",
-        "geq_125hz",
-        "geq_16khz",
-        "geq_1khz",
-        "geq_250hz",
-        "geq_2khz",
-        "geq_31hz",
-        "geq_4khz",
-        "geq_500hz",
-        "geq_63hz",
-        "geq_8khz",
-        "geq_level",
-        "high_gain",
-        "high_mid_freq",
-        "high_mid_gain",
-        "high_mid_q",
-        "level",
-        "low_gain",
-        "low_mid_freq",
-        "low_mid_gain",
-        "low_mid_q",
-        "on"
-      ],
       "properties": {
         "eq_type": {
-          "$ref": "#/definitions/EqType"
+          "$ref": "#/$defs/EqType"
         },
         "geq_125hz": {
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "geq_16khz": {
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "geq_1khz": {
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "geq_250hz": {
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "geq_2khz": {
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "geq_31hz": {
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "geq_4khz": {
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "geq_500hz": {
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "geq_63hz": {
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "geq_8khz": {
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "geq_level": {
           "description": "Graphic level, dB.",
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "high_gain": {
           "description": "Parametric high gain, dB.",
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "high_mid_freq": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "high_mid_gain": {
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "high_mid_q": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "level": {
           "description": "Parametric level, dB.",
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "low_gain": {
           "description": "Parametric low gain, dB.",
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "low_mid_freq": {
           "description": "0–29, see the `eq_freq` catalog.",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "low_mid_gain": {
           "type": "integer",
-          "format": "int8"
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
         },
         "low_mid_q": {
           "description": "0–5, see the `eq_q` catalog.",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "on": {
           "type": "boolean"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "on",
+        "eq_type",
+        "low_gain",
+        "high_gain",
+        "level",
+        "low_mid_freq",
+        "low_mid_q",
+        "low_mid_gain",
+        "high_mid_freq",
+        "high_mid_q",
+        "high_mid_gain",
+        "geq_level",
+        "geq_31hz",
+        "geq_63hz",
+        "geq_125hz",
+        "geq_250hz",
+        "geq_500hz",
+        "geq_1khz",
+        "geq_2khz",
+        "geq_4khz",
+        "geq_8khz",
+        "geq_16khz"
+      ]
     },
     "EqType": {
       "description": "EQ TYPE.",
@@ -249,16 +285,12 @@
         {
           "description": "Four-band parametric.",
           "type": "string",
-          "enum": [
-            "parametric"
-          ]
+          "const": "parametric"
         },
         {
           "description": "Ten-band graphic.",
           "type": "string",
-          "enum": [
-            "graphic"
-          ]
+          "const": "graphic"
         }
       ]
     },
@@ -277,83 +309,163 @@
     "Expression": {
       "description": "EXP PDL FUNCTION.",
       "type": "object",
-      "required": [
-        "amp_gain_max",
-        "amp_gain_min",
-        "amp_level_max",
-        "amp_level_min",
-        "amp_solo_level_max",
-        "amp_solo_level_min",
-        "function",
-        "return_level_max",
-        "return_level_min",
-        "send_level_max",
-        "send_level_min"
-      ],
       "properties": {
         "amp_gain_max": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "amp_gain_min": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "amp_level_max": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "amp_level_min": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "amp_solo_level_max": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "amp_solo_level_min": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "function": {
-          "$ref": "#/definitions/ExpFunction"
+          "$ref": "#/$defs/ExpFunction"
         },
         "return_level_max": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "return_level_min": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "send_level_max": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "send_level_min": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "function",
+        "amp_gain_min",
+        "amp_gain_max",
+        "amp_level_min",
+        "amp_level_max",
+        "amp_solo_level_min",
+        "amp_solo_level_max",
+        "send_level_min",
+        "send_level_max",
+        "return_level_min",
+        "return_level_max"
+      ]
     },
     "Input": {
       "description": "INPUT: preference and the ten input level settings.",
       "type": "object",
+      "properties": {
+        "preference": {
+          "description": "0 = MEMORY (each memory picks a setting), 1–10 = that setting for\nall memories (`input_pref` catalog).",
+          "type": "integer",
+          "format": "uint8",
+          "maximum": 255,
+          "minimum": 0
+        },
+        "setting_1": {
+          "description": "Input level of each setting, -20–+20 dB.",
+          "type": "integer",
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
+        },
+        "setting_10": {
+          "type": "integer",
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
+        },
+        "setting_2": {
+          "type": "integer",
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
+        },
+        "setting_3": {
+          "type": "integer",
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
+        },
+        "setting_4": {
+          "type": "integer",
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
+        },
+        "setting_5": {
+          "type": "integer",
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
+        },
+        "setting_6": {
+          "type": "integer",
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
+        },
+        "setting_7": {
+          "type": "integer",
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
+        },
+        "setting_8": {
+          "type": "integer",
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
+        },
+        "setting_9": {
+          "type": "integer",
+          "format": "int8",
+          "maximum": 127,
+          "minimum": -128
+        }
+      },
+      "additionalProperties": false,
       "required": [
         "preference",
         "setting_1",
-        "setting_10",
         "setting_2",
         "setting_3",
         "setting_4",
@@ -361,159 +473,102 @@
         "setting_6",
         "setting_7",
         "setting_8",
-        "setting_9"
-      ],
-      "properties": {
-        "preference": {
-          "description": "0 = MEMORY (each memory picks a setting), 1–10 = that setting for all memories (`input_pref` catalog).",
-          "type": "integer",
-          "format": "uint8",
-          "minimum": 0.0
-        },
-        "setting_1": {
-          "description": "Input level of each setting, -20–+20 dB.",
-          "type": "integer",
-          "format": "int8"
-        },
-        "setting_10": {
-          "type": "integer",
-          "format": "int8"
-        },
-        "setting_2": {
-          "type": "integer",
-          "format": "int8"
-        },
-        "setting_3": {
-          "type": "integer",
-          "format": "int8"
-        },
-        "setting_4": {
-          "type": "integer",
-          "format": "int8"
-        },
-        "setting_5": {
-          "type": "integer",
-          "format": "int8"
-        },
-        "setting_6": {
-          "type": "integer",
-          "format": "int8"
-        },
-        "setting_7": {
-          "type": "integer",
-          "format": "int8"
-        },
-        "setting_8": {
-          "type": "integer",
-          "format": "int8"
-        },
-        "setting_9": {
-          "type": "integer",
-          "format": "int8"
-        }
-      },
-      "additionalProperties": false
+        "setting_9",
+        "setting_10"
+      ]
     },
     "MemoryExtent": {
       "description": "MEMORY EXTENT: the range of memories the pedal steps through.",
       "type": "object",
-      "required": [
-        "max",
-        "min"
-      ],
       "properties": {
         "max": {
           "description": "1–128.",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "min": {
           "description": "1–128.",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "max"
+      ]
     },
     "Midi": {
       "description": "MIDI.",
       "type": "object",
-      "required": [
-        "cc_amp_gain",
-        "cc_amp_level",
-        "cc_amp_solo",
-        "cc_amp_solo_level",
-        "cc_bypass",
-        "cc_ctl1",
-        "cc_ctl2",
-        "cc_exp",
-        "cc_memory_down",
-        "cc_memory_up",
-        "midi_thru",
-        "rx_cc",
-        "rx_channel",
-        "rx_pc",
-        "tx_cc",
-        "tx_channel",
-        "tx_pc",
-        "usb_thru"
-      ],
       "properties": {
         "cc_amp_gain": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "cc_amp_level": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "cc_amp_solo": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "cc_amp_solo_level": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "cc_bypass": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "cc_ctl1": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "cc_ctl2": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "cc_exp": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "cc_memory_down": {
-          "description": "CC numbers: 0 = OFF, 1–31 = CC#1–31, 32–63 = CC#64–95 (`cc_number` catalog).",
+          "description": "CC numbers: 0 = OFF, 1–31 = CC#1–31, 32–63 = CC#64–95\n(`cc_number` catalog).",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "cc_memory_up": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "midi_thru": {
-          "$ref": "#/definitions/MidiThru"
+          "$ref": "#/$defs/MidiThru"
         },
         "rx_cc": {
           "type": "boolean"
@@ -522,7 +577,8 @@
           "description": "1–16, 17 = OFF (`rx_channel` catalog).",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "rx_pc": {
           "type": "boolean"
@@ -534,16 +590,37 @@
           "description": "1–16, 17 = Rx, 18 = OFF (`tx_channel` catalog).",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "tx_pc": {
           "type": "boolean"
         },
         "usb_thru": {
-          "$ref": "#/definitions/MidiThru"
+          "$ref": "#/$defs/MidiThru"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "midi_thru",
+        "usb_thru",
+        "rx_channel",
+        "tx_channel",
+        "rx_pc",
+        "tx_pc",
+        "rx_cc",
+        "tx_cc",
+        "cc_memory_down",
+        "cc_memory_up",
+        "cc_amp_gain",
+        "cc_amp_level",
+        "cc_amp_solo",
+        "cc_amp_solo_level",
+        "cc_ctl1",
+        "cc_ctl2",
+        "cc_exp",
+        "cc_bypass"
+      ]
     },
     "MidiThru": {
       "description": "MIDI THRU / USB THRU: where incoming MIDI is echoed.",
@@ -558,11 +635,6 @@
     "Modules": {
       "description": "Module on/off: the long-press switches on the AMP, CABINET and AMBIENCE knobs.",
       "type": "object",
-      "required": [
-        "ambience",
-        "amp",
-        "cabinet"
-      ],
       "properties": {
         "ambience": {
           "type": "boolean"
@@ -574,7 +646,12 @@
           "type": "boolean"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "amp",
+        "cabinet",
+        "ambience"
+      ]
     },
     "OutputType": {
       "description": "OUTPUT SELECT TYPE: the kind of amp connected to OUTPUT A or B.",
@@ -596,16 +673,12 @@
     "Phones": {
       "description": "PHONES.",
       "type": "object",
-      "required": [
-        "ambience_level",
-        "surround",
-        "volume"
-      ],
       "properties": {
         "ambience_level": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "surround": {
           "type": "boolean"
@@ -613,10 +686,16 @@
         "volume": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "volume",
+        "surround",
+        "ambience_level"
+      ]
     },
     "Preference": {
       "description": "Where a controller's settings come from (PREF).",
@@ -624,31 +703,18 @@
         {
           "description": "Set per memory.",
           "type": "string",
-          "enum": [
-            "memory"
-          ]
+          "const": "memory"
         },
         {
           "description": "Shared by all memories (SYSTEM).",
           "type": "string",
-          "enum": [
-            "system"
-          ]
+          "const": "system"
         }
       ]
     },
     "Preferences": {
       "description": "Preferences (OTHER and display settings).",
       "type": "object",
-      "required": [
-        "auto_off",
-        "display_cabinet",
-        "display_mode",
-        "exp_pedal_hold",
-        "lcd_contrast",
-        "panel_lock",
-        "play_cursor"
-      ],
       "properties": {
         "auto_off": {
           "type": "boolean"
@@ -657,13 +723,15 @@
           "description": "Cabinet display, 0–1.",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "display_mode": {
           "description": "Play screen display mode, 0–1.",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "exp_pedal_hold": {
           "description": "EXP PDL HOLD: keep the pedal's effect when switching memories.",
@@ -673,7 +741,8 @@
           "description": "1–16.",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "panel_lock": {
           "type": "boolean"
@@ -682,51 +751,65 @@
           "description": "Play cursor, 0–1.",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "auto_off",
+        "lcd_contrast",
+        "display_mode",
+        "panel_lock",
+        "display_cabinet",
+        "play_cursor",
+        "exp_pedal_hold"
+      ]
     },
     "Switch": {
       "description": "A footswitch or CTL jack: DOWN/UP FUNCTION, CTL1/CTL2 FUNCTION.",
       "type": "object",
-      "required": [
-        "amp_solo",
-        "eq",
-        "function",
-        "memory",
-        "send_return"
-      ],
       "properties": {
         "amp_solo": {
           "description": "AMP SOLO function parameter, 0–1.",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "eq": {
           "description": "EQ function target: 0 = A, 1 = B, 2 = A+B (`switch_eq` catalog).",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "function": {
-          "$ref": "#/definitions/SwitchFunction"
+          "$ref": "#/$defs/SwitchFunction"
         },
         "memory": {
-          "description": "MEMORY function target: 0 = DEC, 1 = INC, 2–129 = memory 1–128 (`switch_memory` catalog).",
+          "description": "MEMORY function target: 0 = DEC, 1 = INC, 2–129 = memory 1–128\n(`switch_memory` catalog).",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "send_return": {
           "description": "SEND/RET function parameter (always 0).",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "function",
+        "memory",
+        "amp_solo",
+        "eq",
+        "send_return"
+      ]
     },
     "SwitchFunction": {
       "description": "Footswitch / CTL FUNCTION.",
@@ -741,24 +824,12 @@
     "Usb": {
       "description": "USB.",
       "type": "object",
-      "required": [
-        "generic_efx_out_level",
-        "generic_loopback",
-        "generic_loopback_level",
-        "generic_mix_in_level",
-        "mode",
-        "vendor_dry_out_level",
-        "vendor_efx_in_level",
-        "vendor_efx_out_level",
-        "vendor_loopback",
-        "vendor_loopback_level",
-        "vendor_mix_in_level"
-      ],
       "properties": {
         "generic_efx_out_level": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "generic_loopback": {
           "type": "boolean"
@@ -766,31 +837,36 @@
         "generic_loopback_level": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "generic_mix_in_level": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "mode": {
-          "$ref": "#/definitions/UsbMode"
+          "$ref": "#/$defs/UsbMode"
         },
         "vendor_dry_out_level": {
           "description": "VENDOR DRY OUT level, 0–200.",
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "vendor_efx_in_level": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "vendor_efx_out_level": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "vendor_loopback": {
           "type": "boolean"
@@ -798,15 +874,30 @@
         "vendor_loopback_level": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         },
         "vendor_mix_in_level": {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0.0
+          "maximum": 255,
+          "minimum": 0
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "vendor_dry_out_level",
+        "vendor_efx_in_level",
+        "vendor_efx_out_level",
+        "vendor_mix_in_level",
+        "generic_efx_out_level",
+        "generic_mix_in_level",
+        "vendor_loopback",
+        "vendor_loopback_level",
+        "generic_loopback",
+        "generic_loopback_level"
+      ]
     },
     "UsbMode": {
       "description": "USB MODE.",
@@ -814,16 +905,12 @@
         {
           "description": "IR-200 driver (Windows, macOS).",
           "type": "string",
-          "enum": [
-            "vendor"
-          ]
+          "const": "vendor"
         },
         {
           "description": "Class compliant (iOS).",
           "type": "string",
-          "enum": [
-            "generic"
-          ]
+          "const": "generic"
         }
       ]
     }
